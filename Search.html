@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        #search {
+        display: block;
+        margin: 20px auto;
+        width: 30%;
+        height: 20px;
+        }
+        ul{
+            list-style: none;
+            display: block;
+            position: relative;
+            margin: 2px 2px;
+            padding: 0px 10px 10px 10px;
+        }
+        span {
+            float: right;
+            
+            display: block;
+            margin: 8px 0px 0px 30px;
+          
+        }
+    </style>
+</head>
+<body>
+    <input id="search" autofocus>
+    <div id="lol"></div>
+    <div id="film"></div>
+    <div id="audios"></div>
+    <div id="futer"></div>
+    <script>
+        let lolContainer = document.querySelector('#lol');
+        let audioContainer = document.querySelector('#audios');
+        let filmContainer = document.querySelector('#film');
+        let search = document.querySelector('#search');
+        let futer = document.querySelector('#futer');
+        lolContainer.style.textAlign = "center";
+        search.addEventListener('keypress', function(event) {
+            if(event.keyCode == 13) {
+                let movie = event.target.value;
+                fetch('http://www.omdbapi.com/?t='+ movie)
+                    .then(res => res.json())
+                    .then(json => {
+                        //console.log(json);
+                        delete json['Poster'];
+                        delete json['Ratings'];
+                        filmContainer.innerHTML = '';
+                        filmContainer.style.background = '';
+                        filmContainer.style.width = "50%";
+                        filmContainer.style.float =  "left";
+                        let newUl = document.createElement('ul');
+                        document.body.appendChild(filmContainer);
+                        futer.style.height = "100px";
+                        futer.style.background = "white";
+                        futer.style.position =  'relative';
+                        futer.style.bottom = "50px";
+                        for(let objekt in json) {
+                            let newLi = document.createElement('li');
+                            newUl.appendChild(newLi);
+                            filmContainer.appendChild(newUl);
+                            newLi.style.margin = "14px auto";
+                            newLi.textContent = objekt + ' : ' + json[objekt];
+                            filmContainer.appendChild(futer);
+                        };
+                    });
+                fetch('http://www.omdbapi.com/?t='+ movie)
+                    .then(res => res.json())
+                    .then(json => {
+                        lolContainer.innerHTML = '';
+                        let img = document.createElement('img');
+                        lolContainer.appendChild(img);
+                        img.src = json.Poster;
+                        img.style.display = 'block';
+                        img.style.width = "20%";
+                        img.style.margin = "10px auto";
+                        let title = document.createElement('h2');
+                        title.classList.add("ok");
+                        lolContainer.appendChild(title);
+                        title.textContent = json.Title;
+                        lolContainer.style.align = 'center';
+                        //console.log(title);
+                    });
+                fetch('http://www.omdbapi.com/?t='+ movie)
+                    .then(res => res.json())
+                    .then(json => {
+                        //console.log(json.Ratings);
+                        let Ratings = document.createElement('div');
+                        let newUl = document.createElement('ul');
+                        Ratings.textContent = "Ratings";
+                        Ratings.style.border = "1px solid #c0c0c0";
+                        Ratings.style.float =  "left";
+                        Ratings.style.width = "100%";
+                        Ratings.style.margin = "20px auto";
+                        Ratings.style.padding = "20px 0 0 0";
+                        Ratings.style.margin = "20px auto";
+                        Ratings.style.fontSize = "20px";
+                        Ratings.appendChild(newUl);
+                        lolContainer.appendChild(Ratings);
+                        for (var i = 0; i < json.Ratings.length; i++) {
+                            let newLi = document.createElement('div');
+                            newLi.style.display = 'block';
+                            newLi.style.float =  "left";
+                            newLi.style.width = "33%";
+                            Ratings.appendChild(newLi);
+                            newLi.style.margin = "20px auto";
+                            newLi.textContent  = json.Ratings[i].Source +" - "+ json.Ratings[i].Value;
+                            };
+                    });
+                fetch('https://api.spotify.com/v1/search?q='+movie+'&type=track')
+                    .then(res => res.json())
+                    .then(json => {
+                        //console.log(json);
+                        audioContainer.innerHTML = '';
+                        audioContainer.style.background = '';
+                        audioContainer.style.width = "50%";
+                        audioContainer.style.float =  "right";
+                        json.tracks.items.map(track => {
+                            let div = document.createElement('div');
+                            let span = document.createElement('span');
+                            let audio = document.createElement('audio');
+                            audio.controls = true;
+                            let source = document.createElement('source');
+                            source.src = track.preview_url;
+                            span.textContent = track.name;
+                            audio.appendChild(source);
+                            div.appendChild(audio);
+                            div.appendChild(span);
+                            audioContainer.appendChild(div);
+                            document.body.appendChild(audioContainer);
+                        });
+                    })
+                search.value='';
+            }
+        });
+    </script>
+</html>
